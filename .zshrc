@@ -10,16 +10,15 @@ source $ZSH/oh-my-zsh.sh
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
 # User configuration
-export PATH=$HOME/.opt/ctags/bin:$PATH
-export MANPATH=$HOME/.opt/ctags/man:$MANPATH
+export PATH=$HOME/.opt/bin:$PATH
 
 export MPI_DIR=$HOME/.opt/mpi
 export LD_LIBRARY_PATH=$MPI_DIR/lib:$HOME/.opt/mpi/lib:$LD_LIBRARY_PATH
 export PATH=$MPI_DIR/bin:$HOME/.opt/mpi/bin:$PATH
 
-export SHMEM_DIR=$HOME/.opt/shmem
-export LD_LIBRARY_PATH=$SHMEM_DIR/lib:$HOME/.opt/shmem/lib:$LD_LIBRARY_PATH
-export PATH=$SHMEM_DIR/bin:$HOME/.opt/shmem/bin:$PATH
+export OFI_DIR=$HOME/.opt/ofi
+export LD_LIBRARY_PATH=$OFI_DIR/lib:$HOME/.opt/ofi/lib:$LD_LIBRARY_PATH
+export PATH=$OFI_DIR/bin:$HOME/.opt/ofi/bin:$PATH
 
 alias vi="vim"
 alias cls="clear"
@@ -65,17 +64,7 @@ function fd
 }
 
 # Print folder structure in a tree-like format
-function t
-{
-    if [[ "$1" == "--help" ]]; then
-        echo "Usage: t [path] [depth]"
-        echo "  path   Directory to display (default: .)"
-        echo "  depth  Max depth to traverse (default: 3)"
-        exit 0
-    fi
-
-    find "${1:-.}" -maxdepth "${2:-3}" \
-        -not -regex ".*\/((.idea|.git|.venv|node_modules|venv)\/.*|.DS_Store)" \
-        | sed -e "s/[^-][^\/]*\// |/g" \
-        -e "s/|\([^ ]\)/|-\1/"
+function t {
+    [ -d "$1" ] && { dir="$1"; shift; } || dir='.'
+    find "$dir" "$@" | sed -e 's@/@|@g;s/^\.|//;s/[^|][^|]*|/ |/g;/^[. |]*$/d'
 }

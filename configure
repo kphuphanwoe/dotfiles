@@ -20,14 +20,10 @@ cp .zshrc ~/.zshrc
 echo "Copying tmux.conf..."
 cp .tmux.conf ~/.tmux.conf
 
-echo "Copying gdbinit..."
-cp .gdbinit ~/.gdbinit
-
 echo "Copying gitconfig..."
 cp .gitconfig ~/.gitconfig
 
-mkdir -p ~/.opt/ctags
-tar -xzf 3rd-party/uctags-2025.07.31-linux-x86_64.release.tar.gz -C ~/.opt/ctags \
-    --strip-components=1
+mkdir -p ~/.opt/bin
+cp ./ack-v3.9.0-single-file ~/.opt/bin
 
 echo "Done!! Take a break. Drink coffee."

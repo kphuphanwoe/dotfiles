@@ -1,87 +1,97 @@
-if empty(glob('~/.vim/autoload/plug.vim'))
-    silent !curl -fLo ~/.vim/autoload/plug.vim --create-dirs
-        \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
-    au VimEnter * PlugInstall --sync | source $MYVIMRC
-endif
-
 call plug#begin("~/.vim/plugged")
 
-Plug 'junegunn/fzf', {
-    \ 'dir': '~/.opt/fzf',
-    \ 'do': './install --all'
-    \ }
-Plug 'junegunn/fzf.vim'
-
+Plug 'blueyed/vim-diminactive'
+Plug 'ctrlpvim/ctrlp.vim'
 Plug 'flazz/vim-colorschemes'
-Plug 'itchyny/lightline.vim'
-
-Plug 'kien/ctrlp.vim'
+Plug 'junegunn/fzf', { 'dir': '~/.opt/fzf', 'do': './install --all' }
+Plug 'kphuphanwoe/vim-airline'
+" Plug 'kphuphanwoe/vim-clang'
 Plug 'preservim/nerdcommenter'
 Plug 'preservim/tagbar'
-Plug 'tpope/vim-fugitive'
 
 call plug#end()
 
+set tags=./tags;/
+let g:diminactive_enable_focus = 1
+
 " --- General ---
 syntax on
+colorscheme molokai
+set background=dark
 set backspace=indent,eol,start
-set completeopt=menuone,noinsert,noselect
-set encoding=utf-8
-set hlsearch
 set laststatus=2
-set mouse=a
-set nobackup
-set noerrorbells
-set noshowmode
-set noswapfile
+
+set belloff=all
+set clipboard=unnamed
+set cursorline
+set hlsearch
+set incsearch
 set number
 set relativenumber
-set showmatch
-set smartcase
-set tags=./tags;/
+set pastetoggle=<F2>
 
-" --- Indent ---
-filetype plugin indent on
-set shiftwidth=4
-set tabstop=4
-set softtabstop=4
-set expandtab
-set smartindent
-
-" --- Colorscheme ---
-if !has('gui_running')
-    set t_Co=256
-endif
-
-set background=dark
-let g:solarized_termcolors=256
-colorscheme solarized
-
-" --- Cursorline ---
-set cursorline
-hi CursorLine cterm=NONE ctermbg=BLACK ctermfg=NONE
-
-" --- Keybind ---
-let mapleader=','
-nnoremap <leader>p :Files<CR>
-nnoremap <leader>t :TagbarToggle<CR>
+nnoremap <F8> :TagbarToggle<CR>
 vnoremap <S-Tab> <gv
 vnoremap <Tab> >gv
 
-let g:NERDSpaceDelims       = 1
-let g:NERDCompactSexyComs   = 1
-let g:NERDDefaultAlign      = 'left'
-let g:NERDAltDelims_java    = 1
-let g:NERDCustomDelimiters  = { 'c': { 'left': '/*','right': '/'  }  }
+highlight ExtraWhitespace ctermbg=RED guibg=RED
+match ExtraWhitespace /\s\+$/
+autocmd BufWinEnter * match ExtraWhitespace /\s\+$/
+autocmd InsertEnter * match ExtraWhitespace /\s\+\%#\@<!$/
+autocmd InsertLeave * match ExtraWhitespace /\s\+$/
+autocmd BufWinLeave * call  clearmatches()
+
+command! -range=% TrimSpace keepp <line1>,<line2>s/\s\+$/
+nnoremap <F12> :TrimSpace<CR>
+nnoremap <S-F12> m`:TrimSpace<CR>``
+vnoremap <S-F12> :TrimSpace<CR>
+
+if !exists('g:airline_symbols')
+      let g:airline_symbols = {}
+endif
+
+" unicode symbols
+let g:airline_left_sep = '»'
+let g:airline_left_sep = '▶'
+let g:airline_right_sep = '«'
+let g:airline_right_sep = '◀'
+let g:airline_symbols.linenr = '␊'
+let g:airline_symbols.linenr = '␤'
+let g:airline_symbols.linenr = '¶'
+let g:airline_symbols.branch = '⎇'
+let g:airline_symbols.paste = 'ρ'
+let g:airline_symbols.paste = 'Þ'
+let g:airline_symbols.paste = '∥'
+let g:airline_symbols.whitespace = 'Ξ'
+" let g:airline_theme = 'powerlineish'
+let g:airline_powerline_fonts = 1
+
+filetype plugin indent on
+" show existing tab with 4 spaces width
+set tabstop=4
+" when indenting with '>', use 4 spaces width
+set shiftwidth=4
+" On pressing tab, insert 4 spaces
+set expandtab
+
+let mapleader=','
+" Add spaces after comment delimiters by default
+let g:NERDSpaceDelims = 1
+
+" Use compact syntax for prettified multi-line comments
+let g:NERDCompactSexyComs = 1
+
+" Align line-wise comment delimiters flush left instead of following code indentation
+let g:NERDDefaultAlign = 'left'
+
+" Set a language to use its alternate delimiters by default
+let g:NERDAltDelims_java = 1
+
+" Add your own custom formats or override the defaults
+let g:NERDCustomDelimiters = { 'c': { 'left': '/**','right': '*/' } }
+
+" Allow commenting and inverting empty lines (useful when commenting a region)
 let g:NERDCommentEmptyLines = 1
 
-let g:lightline = {
-    \ 'colorscheme': 'powerline',
-    \ 'active': {
-    \   'left': [ [ 'mode', 'paste' ],
-    \             [ 'gitbranch', 'readonly', 'filename', 'modified' ] ]
-    \ },
-    \ 'component_function': {
-    \   'gitbranch': 'FugitiveHead'
-    \ }
-    \ } 
+" Enable trimming of trailing whitespace when uncommenting
+let g:NERDTrimTrailingWhitespace = 1
