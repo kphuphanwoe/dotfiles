@@ -1,70 +1,67 @@
-# Path to your oh-my-zsh installation.
-export HOME=~
-export ZSH="$HOME/.oh-my-zsh"
-export EDITOR=vim
-ZSH_THEME="agnoster"
-SSH_ENV="$HOME/.ssh/environment"
+# If not running interactively, don't do anything
+[ -z "$PS1" ] && return
 
-plugins=(git)
-source $ZSH/oh-my-zsh.sh
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+autoload -Uz vcs_info
 
-# User configuration
-export PATH=$HOME/.opt/bin:$PATH
+# This needs prompt_subst set, hence the name. So:
+setopt PROMPT_SUBST
 
-export MPI_DIR=$HOME/.opt/mpi
-export LD_LIBRARY_PATH=$MPI_DIR/lib:$HOME/.opt/mpi/lib:$LD_LIBRARY_PATH
-export PATH=$MPI_DIR/bin:$HOME/.opt/mpi/bin:$PATH
+# Save command history
+HISTFILE=${ZDOTDIR:-$HOME}/.zsh_history
+HISTSIZE=2000
+SAVEHIST=1000
 
-export OFI_DIR=$HOME/.opt/ofi
-export LD_LIBRARY_PATH=$OFI_DIR/lib:$HOME/.opt/ofi/lib:$LD_LIBRARY_PATH
-export PATH=$OFI_DIR/bin:$HOME/.opt/ofi/bin:$PATH
+# Default key bindings
+bindkey '^h' backward-delete-char
+bindkey '^w' backward-kill-word
+bindkey '^u' kill-whole-line
+bindkey '^k' kill-line
+bindkey '^m' accept-line
+bindkey '^l' clear-screen
+bindkey '^i' expand-or-complete
+bindkey '^a' beginning-of-line
+bindkey '^e' end-of-line
+bindkey '^p' up-line-or-history
+bindkey '^n' down-line-or-history
+bindkey '^b' backward-char
+bindkey '^f' forward-char
+bindkey '^y' yank
+bindkey '^_' undo
+bindkey '^r' history-incremental-search-backward
+bindkey '^s' history-incremental-search-forward
 
-alias vi="vim"
-alias cls="clear"
-alias py="python3"
-alias ls="ls --color=auto"
-alias ll="ls -l --color=auto"
-alias la="ls -al --color=auto"
-alias reload="source $HOME/.zshrc"
+# Disable Beep on error
+setopt NO_BEEP
 
-function start_agent
-{
-    echo "Initialising new SSH agent..."
-    /usr/bin/ssh-agent | sed "s/^echo/#echo/" > "${SSH_ENV}"
-    echo "Succeeded"
-    chmod 600 "${SSH_ENV}"
-    source "${SSH_ENV}" > /dev/null
+zstyle ":vcs_info:git*" formats "%b"
+function precmd() {
+    # As always first run the system so everything is setup correctly.
+    vcs_info
 
-    if [ -f $HOME/.ssh/agent ]; then
-        /usr/bin/ssh-add $HOME/.ssh/agent
+    if [[ -z ${vcs_info_msg_0_} ]];
+    then
+        # Oh hey, nothing from vcs_info, so we got more space.
+        # Let's print a longer part of $PWD...
+        PS1="%n@%m:%F{cyan}%~%f $ "
     else
-        echo "Warning: SSH key ${HOME}/.ssh/agent not found."
+        # vcs_info found something, that needs space. So a shorter $PWD
+        # makes sense.
+        PS1="%n@%m:%F{cyan}%3~%f%F{130}:${vcs_info_msg_0_}%f $ "
     fi
 }
 
-# Search and open files in Vim
-# Replace script vim-explore
-function vf
-{
-    local file
-    file=(${(f)"$(find . \( -path './.git' -o -path './.cache' \)              \
-        -prune -o -iname "*$1*" -print0 |
-        fzf --read0 -0 -1 -m)"})
-    [[ -n $file ]] && vim -- $file
-}
+export EDITOR="vim"
+export CLICOLOR=1
+export PATH=$HOME/.opt/mpi/bin:$PATH
+export LD_LIBRARY_PATH=$HOME/.opt/mpi/bin:$LD_LIBRARY_PATH
 
-# Fuzzy find a directories and cd into it
-function fd
-{
-    local dir
-    dir=$(find ${1:-.} -path '*/\.*' -prune \
-        -o -type d -print 2> /dev/null | fzf +m) &&
-    cd "$dir"
-}
+# enable color support of ls and also add handy aliases
+alias grep="grep --color=auto"
+alias fgrep="fgrep --color=auto"
+alias egrep="egrep --color=auto"
+alias diff="diff --color=auto"
 
-# Print folder structure in a tree-like format
-function t {
-    [ -d "$1" ] && { dir="$1"; shift; } || dir='.'
-    find "$dir" "$@" | sed -e 's@/@|@g;s/^\.|//;s/[^|][^|]*|/ |/g;/^[. |]*$/d'
-}
+# some more ls aliases
+alias ll='ls -alF'
+alias la='ls -A'
+alias l='ls -CF'
