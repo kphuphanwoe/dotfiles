@@ -11,24 +11,8 @@ HISTFILE=${ZDOTDIR:-$HOME}/.zsh_history
 HISTSIZE=2000
 SAVEHIST=1000
 
-# Default key bindings
-bindkey '^h' backward-delete-char
-bindkey '^w' backward-kill-word
-bindkey '^u' kill-whole-line
-bindkey '^k' kill-line
-bindkey '^m' accept-line
-bindkey '^l' clear-screen
-bindkey '^i' expand-or-complete
-bindkey '^a' beginning-of-line
-bindkey '^e' end-of-line
-bindkey '^p' up-line-or-history
-bindkey '^n' down-line-or-history
-bindkey '^b' backward-char
-bindkey '^f' forward-char
-bindkey '^y' yank
-bindkey '^_' undo
-bindkey '^r' history-incremental-search-backward
-bindkey '^s' history-incremental-search-forward
+# Use Emacs-mode default key bindings
+bindkey -e
 
 # Disable Beep on error
 setopt NO_BEEP
